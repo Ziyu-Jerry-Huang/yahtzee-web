@@ -8,7 +8,7 @@ import Lobby from './webpages/Lobby';
 import GamePage from './webpages/Game';
 
 
-const socket = io('http://43.143.229.212:5000')
+const socket = io('http://localhost:5000')
 const generateUUID = () => {
   let playerUUID = sessionStorage.getItem('playerId');
   if (!playerUUID) {
