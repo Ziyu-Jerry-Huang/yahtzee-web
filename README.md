@@ -1,6 +1,6 @@
 # Yahtzee-web
 
-This project was a mini online multiplayer Yahtzee game. This project is developed using React + Flask.
+This project is a mini online multiplayer Yahtzee game. This project is developed using React + Flask.
 
 ## React Dependencies
 
@@ -19,3 +19,4 @@ You may also see any lint errors in the console.
 ### `pip install flask`
 ### `pip install flask_socketio`
 ### `pip install simple-websocket`
+
