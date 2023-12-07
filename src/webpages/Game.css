@@ -1,3 +1,65 @@
+@import url('https://fonts.googleapis.com/css2?family=Anton&display=swap');
+
+.game-board, .game-board * {
+  font-family: 'Anton', sans-serif;
+  color: white;
+}
+
+.game-board {
+  display: flex;
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 10;
+}
+
+.game-board-left, .game-board-right {
+  top: 0;
+  width: 300px;
+}
+
+.game-board-pname, .game-board-right{
+  text-align: right;
+}
+
+.game-board-left {
+  left: 0;
+}
+
+.game-board-right {
+  right: 0;
+}
+
+.game-board-pname {
+  font-size: 18pt;
+}
+
+.game-board-left .game-board-scoring {
+  display: inline-block;
+  width: 100px;
+  text-align: left;
+}
+
+.game-board-right .game-board-scoring{
+  display: inline-block;
+  width: 100px;
+  text-align: right;
+}
+
+.game-board-number {
+  display: inline-block;
+  width: 50px;
+  text-align: center;
+}
+
+.game-board-middle {
+  flex-grow: 1;
+  z-index: 10;
+  text-align: center;
+  font-size: 18pt;
+}
+
 .diceList {
   display: flex;
   justify-content: center;

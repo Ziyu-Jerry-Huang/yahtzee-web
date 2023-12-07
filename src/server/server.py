@@ -229,6 +229,21 @@ def handle_game_initialize(message):
         })
 
 
+# @socketio.on('start_roll')
+# def handle_start_roll(message):
+#     """
+#     One client start a physical simulation of rolling in three.js
+#     Parameters:
+#         message: {'game_id': uuid, 'player_id': pid, 'index': [int, ]}
+#     """
+#     game = ongoing_games[message['game_id']]
+#     if message['player_id'] == game.p1.pid:
+#         oppo_player_sid = game.p2.sid
+#     elif message['player_id'] == game.p2.pid:
+#         oppo_player_sid = game.p1.sid
+#     emit('oppoStartRoll', {'index': message['index']}, room=oppo_player_sid)
+
+
 @socketio.on('roll')
 def handle_roll(message):
     """

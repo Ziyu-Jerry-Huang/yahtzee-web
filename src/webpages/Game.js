@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import './Game.css'
+import './Game.css';
+
+import DiceRoller from '../components/DiceRoller';
 
 
 // GamePage: the web page for playing the game, including Game component and post-game logic
@@ -17,7 +19,7 @@ function GamePage(props) {
   const [opponentConnected, setOpponentConnected] = useState(true);
   const [gameIsOver, setGameIsOver] = useState(false);
   const [gameResult, setGameResult] = useState('ongoing');
-  
+
   // navigation element
   const navigate = useNavigate();
 
@@ -127,6 +129,8 @@ function GamePage(props) {
     </div>
   );
 }
+
+export default GamePage;
 
 
 // Game component
@@ -334,8 +338,22 @@ function Game(props) {
     }
   }, [iRoll]);
 
+  // const startRoll = () => {
+  //   // tell the server that the client start a roll.
+  //   if (iRoll !== 0) {
+  //     let idx = [];
+  //     for (let i = 0; i < 5; i++) {
+  //       if (diceToRoll[i]) { idx.push(i); }
+  //     }
+  //     props.socket.emit('start_roll', {'game_id': props.gameId, 'player_id': sessionStorage.getItem('playerId'), 'index': idx});
+  //   }
+  //   else if (iRoll === 0) {
+  //     props.socket.emit('start_roll', {'game_id': props.gameId, 'player_id': sessionStorage.getItem('playerId'), 'index': [0, 1, 2, 3, 4]});
+  //   }
+  // }
+
   const roll = () => {
-    // send a roll message to the server.
+    // tell the server that the client start a roll.
     if (iRoll !== 0) {
       let idx = [];
       for (let i = 0; i < 5; i++) {
@@ -347,6 +365,15 @@ function Game(props) {
       props.socket.emit('roll', {'game_id': props.gameId, 'player_id': sessionStorage.getItem('playerId'), 'index': [0, 1, 2, 3, 4]});
     }
   }
+
+  // listen to the server if the oppo player is rolling
+  const [oppoIsRolling, setOppoIsRolling] = useState(false);
+  useEffect(() => {
+    props.socket.on('oppoStartRoll', (message) => {
+      // message: {'index': [int, ]}
+      setOppoIsRolling(true);
+    });
+  }, [])
 
 
   // calculator to help decision
@@ -427,6 +454,120 @@ function Game(props) {
 
   return (
     <div>
+      <DiceRoller />
+      {oppoIsRolling && 
+      <div> The opponent is rolling...</div>}
+      <div className='game-board'>
+        <div className='game-board-left'>
+          <div><span className='game-board-pname'>{props.selfName}</span></div>
+          <div>
+            <span className='game-board-scoring'>ONES</span>
+            <span className='game-board-number'>{(scoreSelf['1s'] !== -1) ? scoreSelf['1s'].toString() : (isActive ? calculatorHelper['1s'] : "" )}</span>
+            <span className='game-board-scoring'>THREE OF A KIND</span>
+            <span className='game-board-number'>{(scoreSelf['3-of-a-kind'] !== -1) ? scoreSelf['3-of-a-kind'].toString() : (isActive ? calculatorHelper['3-of-a-kind'] : "" )}</span>
+          </div>
+          <div>
+            <span className='game-board-scoring'>TWOS</span>
+            <span className='game-board-number'>{(scoreSelf['2s'] !== -1) ? scoreSelf['2s'].toString() : (isActive ? calculatorHelper['2s'] : "" )}</span>
+            <span className='game-board-scoring'>FOUR OF A KIND</span>
+            <span className='game-board-number'>{(scoreSelf['4-of-a-kind'] !== -1) ? scoreSelf['4-of-a-kind'].toString() : (isActive ? calculatorHelper['4-of-a-kind'] : "" )}</span>
+          </div>
+          <div>
+            <span className='game-board-scoring'>THREES</span>
+            <span className='game-board-number'>{(scoreSelf['3s'] !== -1) ? scoreSelf['3s'].toString() : (isActive ? calculatorHelper['3s'] : "" )}</span>
+            <span className='game-board-scoring'>FULL HOUSE</span>
+            <span className='game-board-number'>{(scoreSelf['full-house'] !== -1) ? scoreSelf['full-house'].toString() : (isActive ? calculatorHelper['full-house'] : "" )}</span>
+          </div>
+          <div>
+            <span className='game-board-scoring'>FOURS</span>
+            <span className='game-board-number'>{(scoreSelf['4s'] !== -1) ? scoreSelf['4s'].toString() : (isActive ? calculatorHelper['4s'] : "" )}</span>
+            <span className='game-board-scoring'>SMALL STRAIGHT</span>
+            <span className='game-board-number'>{(scoreSelf['small-straight'] !== -1) ? scoreSelf['small-straight'].toString() : (isActive ? calculatorHelper['small-straight'] : "" )}</span>
+          </div>
+          <div>
+            <span className='game-board-scoring'>FIVES</span>
+            <span className='game-board-number'>{(scoreSelf['5s'] !== -1) ? scoreSelf['5s'].toString() : (isActive ? calculatorHelper['5s'] : "" )}</span>
+            <span className='game-board-scoring'>LARGE STRAIGHT</span>
+            <span className='game-board-number'>{(scoreSelf['large-straight'] !== -1) ? scoreSelf['large-straight'].toString() : (isActive ? calculatorHelper['large-straight'] : "" )}</span>
+          </div>
+          <div>
+            <span className='game-board-scoring'>SIXES</span>
+            <span className='game-board-number'>{(scoreSelf['6s'] !== -1) ? scoreSelf['6s'].toString() : (isActive ? calculatorHelper['6s'] : "" )}</span>
+            <span className='game-board-scoring'>YAHTZEE</span>
+            <span className='game-board-number'>{(scoreSelf['yahtzee'] !== -1) ? scoreSelf['yahtzee'].toString() : (isActive ? calculatorHelper['yahtzee'] : "" )}</span>
+          </div>
+          <div>
+            <span className='game-board-scoring'>UPPER SECTION</span>
+            <span className='game-board-number'>{totalUpperSelf().toString()}</span>
+            <span className='game-board-scoring'>CHANCE</span>
+            <span className='game-board-number'>{(scoreSelf['chance'] !== -1) ? scoreSelf['chance'].toString() : (isActive ? calculatorHelper['chance'] : "" )}</span>
+          </div>
+          <div>
+            <span className='game-board-scoring'>BONUS</span>
+            <span className='game-board-number'>{bonusSelf ? '35' : '0'}</span>
+            <span className='game-board-scoring'>TOTAL</span>
+            <span className='game-board-number'>{totalSelf().toString()}</span>
+          </div>
+        </div>
+        <div className='game-board-middle'>
+          <div>ROUND {round} / 13</div>
+          <div>{isActive ? props.selfName : props.oppoName}'S TURN</div>
+          <div>ROLL {3 - iRoll} / 3</div>
+        </div>
+        <div className='game-board-right'>
+          <div>
+            <div><span className='game-board-pname'>{props.oppoName}</span></div>
+            <div>
+              <span className='game-board-number'>{(scoreOppo['3-of-a-kind'] !== -1) ? scoreOppo['3-of-a-kind'].toString() : (isActive ? "" : calculatorHelper['3-of-a-kind'])}</span>
+              <span className='game-board-scoring'>THREE OF A KIND</span>
+              <span className='game-board-number'>{(scoreOppo['1s'] !== -1) ? scoreOppo['1s'].toString() : (isActive ? "" : calculatorHelper['1s'])}</span>
+              <span className='game-board-scoring'>ONES</span>
+            </div>
+            <div>
+              <span className='game-board-number'>{(scoreOppo['4-of-a-kind'] !== -1) ? scoreOppo['4-of-a-kind'].toString() : (isActive ? "" : calculatorHelper['4-of-a-kind'])}</span>
+              <span className='game-board-scoring'>FOUR OF A KIND</span>
+              <span className='game-board-number'>{(scoreOppo['2s'] !== -1) ? scoreOppo['2s'].toString() : (isActive ? "" : calculatorHelper['2s'])}</span>
+              <span className='game-board-scoring'>TWOS</span>
+            </div>
+            <div>
+              <span className='game-board-number'>{(scoreOppo['full-house'] !== -1) ? scoreOppo['full-house'].toString() : (isActive ? "" : calculatorHelper['full-house'])}</span>
+              <span className='game-board-scoring'>FULL HOUSE</span>
+              <span className='game-board-number'>{(scoreOppo['3s'] !== -1) ? scoreOppo['3s'].toString() : (isActive ? "" : calculatorHelper['3s'])}</span>
+              <span className='game-board-scoring'>THREE</span>
+            </div>
+            <div>
+              <span className='game-board-number'>{(scoreOppo['small-straight'] !== -1) ? scoreOppo['small-straight'].toString() : (isActive ? calculatorHelper['small-straight'] : "" )}</span>
+              <span className='game-board-scoring'>SMALL STRAIGHT</span>
+              <span className='game-board-number'>{(scoreOppo['4s'] !== -1) ? scoreOppo['4s'].toString() : (isActive ? "" : calculatorHelper['4s'])}</span>
+              <span className='game-board-scoring'>FOUR</span>
+            </div>
+            <div>
+              <span className='game-board-number'>{(scoreOppo['large-straight'] !== -1) ? scoreOppo['large-straight'].toString() : (isActive ? calculatorHelper['large-straight'] : "" )}</span>
+              <span className='game-board-scoring'>LARGE STRAIGHT</span>
+              <span className='game-board-number'>{(scoreOppo['5s'] !== -1) ? scoreOppo['5s'].toString() : (isActive ? "" : calculatorHelper['5s'])}</span>
+              <span className='game-board-scoring'>FIVE</span>
+            </div>
+            <div>
+              <span className='game-board-number'>{(scoreOppo['yahtzee'] !== -1) ? scoreOppo['yahtzee'].toString() : (isActive ? calculatorHelper['yahtzee'] : "" )}</span>
+              <span className='game-board-scoring'>YAHTZEE</span>
+              <span className='game-board-number'>{(scoreOppo['6s'] !== -1) ? scoreOppo['6s'].toString() : (isActive ? "" : calculatorHelper['6s'])}</span>
+              <span className='game-board-scoring'>SIXES</span>
+            </div>
+            <div>
+              <span className='game-board-number'>{(scoreOppo['chance'] !== -1) ? scoreOppo['chance'].toString() : (isActive ? calculatorHelper['chance'] : "" )}</span>
+              <span className='game-board-scoring'>CHANCE</span>
+              <span className='game-board-number'>{totalUpperOppo().toString()}</span>
+              <span className='game-board-scoring'>UPPER SECTION</span>
+            </div>
+            <div>
+              <span className='game-board-number'>{totalOppo().toString()}</span>
+              <span className='game-board-scoring'>TOTAL</span>
+              <span className='game-board-number'>{bonusOppo ? '35' : '0'}</span>
+              <span className='game-board-scoring'>BONUS</span>
+            </div>
+          </div>
+        </div>
+      </div>
       <div>Round: {round} / 13</div>
       <div>This is the {isActive ? props.selfName : props.oppoName}'s turn.</div>
       <div>There are {3 - iRoll} chances of rolling left in this round.</div>
@@ -589,5 +730,3 @@ function Game(props) {
     </div>
   );
 }
-
-export default GamePage;
